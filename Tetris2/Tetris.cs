@@ -80,4 +80,10 @@ namespace Tetris2
             base.Draw(gameTime);
         }
     }
+    public enum GameState
+    {
+        MainMenu,
+        Playing,
+        Finished
+    }
 }
