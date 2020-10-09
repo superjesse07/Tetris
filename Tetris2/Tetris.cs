@@ -7,12 +7,12 @@ namespace Tetris2
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Game
+    public class Tetris : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public Game1()
+        public Tetris()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
