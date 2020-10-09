@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace Tetris2
 {
@@ -11,6 +12,9 @@ namespace Tetris2
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        private Vector3 screenOffset;
+        private Color rainbowcolor;
+        private const float colorChangeSpeed = 0.05f;
 
         public Tetris()
         {
@@ -40,7 +44,8 @@ namespace Tetris2
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            Tetronimo.block = Content.Load<Texture2D>("block");
+
         }
 
         /// <summary>
@@ -62,6 +67,7 @@ namespace Tetris2
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            rainbowcolor = GetRainbowColor(gameTime.TotalGameTime.TotalSeconds, colorChangeSpeed); // setting the background color (or colour for educated people)
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -73,11 +79,31 @@ namespace Tetris2
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(rainbowcolor);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateTranslation(screenOffset));
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Gets a color that shifts over time
+        /// </summary>
+        /// <param name="time">time value in seconds</param>
+        /// <param name="speed">the speed with which the color changes</param>
+        /// <returns></returns>
+        public static Color GetRainbowColor(double time, double speed)
+        {
+
+            double value = time * speed; // the value that is used for the sine wave
+            double TAU = Math.PI * 2; // helper variable because radians go from 0 to 2PI
+            // the 3 color components of the color are all calculated by a sine wave that is offset by 1/3 PI for every next value
+            float redComponent = (float)Math.Abs(Math.Sin(value * TAU));
+            float greenComponent = (float)Math.Abs(Math.Sin(value * TAU + TAU / 3));
+            float blueComponent = (float)Math.Abs(Math.Sin(value * TAU + TAU * 2 / 3));
+            return new Color(redComponent, greenComponent, blueComponent);
         }
     }
     public enum GameState
