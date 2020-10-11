@@ -10,16 +10,22 @@ namespace Tetris2
     /// </summary>
     public class Tetris : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        private Vector3 screenOffset;
-        private Color rainbowcolor;
-        private const float colorChangeSpeed = 0.05f;
+        private GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
+        private Vector3 _screenOffset;
+        private Color _rainbowcolor;
+        private const float ColorChangeSpeed = 0.05f;
+        private TetrisGrid _grid;
+        public InputHelper inputHelper = new InputHelper();
+        
 
         public Tetris()
         {
-            graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            _graphics.PreferredBackBufferWidth = 800;
+            _graphics.PreferredBackBufferHeight = 800;
+            IsMouseVisible = true;
         }
 
         /// <summary>
@@ -31,7 +37,6 @@ namespace Tetris2
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
             base.Initialize();
         }
 
@@ -42,9 +47,11 @@ namespace Tetris2
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Tetronimo.block = Content.Load<Texture2D>("block");
+            _grid = new TetrisGrid(10,20,Vector2.Zero);
+
 
         }
 
@@ -66,8 +73,19 @@ namespace Tetris2
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            
+            inputHelper.Update(gameTime);
+            
+            if(inputHelper.KeyPressed(Keys.E)) _grid.t.Rotate(true);
+            if(inputHelper.KeyPressed(Keys.Q)) _grid.t.Rotate(false);
+            
+            if(inputHelper.KeyPressed(Keys.D))_grid.t.position+= new Point(1,0);
+            if(inputHelper.KeyPressed(Keys.A))_grid.t.position-= new Point(1,0);
+            if(inputHelper.KeyPressed(Keys.W))_grid.t.position-= new Point(0,1);
+            if(inputHelper.KeyPressed(Keys.S))_grid.t.position+= new Point(0,1);
+            if(inputHelper.KeyPressed(Keys.Space))_grid.PlaceInGrid();
 
-            rainbowcolor = GetRainbowColor(gameTime.TotalGameTime.TotalSeconds, colorChangeSpeed); // setting the background color (or colour for educated people)
+            _rainbowcolor = GetRainbowColor(gameTime.TotalGameTime.TotalSeconds, ColorChangeSpeed); // setting the background color (or colour for educated people)
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -79,11 +97,11 @@ namespace Tetris2
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(rainbowcolor);
+            GraphicsDevice.Clear(_rainbowcolor);
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateTranslation(screenOffset));
-
-            spriteBatch.End();
+            _spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Matrix.CreateTranslation(_screenOffset));
+            _grid.Draw(_spriteBatch);
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }
