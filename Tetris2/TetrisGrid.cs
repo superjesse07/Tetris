@@ -24,7 +24,7 @@ namespace Tetris2
         {
             this.offset = offset;
             grid = new int[width,height];
-            t = new LPiece();
+            t = new SPiece();
         }
 
         public void Draw(SpriteBatch spriteBatch)
