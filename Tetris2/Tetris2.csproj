@@ -42,7 +42,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="InputHelper.cs" />
-    <Compile Include="LPiece.cs" />
+    <Compile Include="Pieces\IPiece.cs" />
+    <Compile Include="Pieces\JPiece.cs" />
+    <Compile Include="Pieces\LPiece.cs" />
+    <Compile Include="Pieces\SPiece.cs" />
+    <Compile Include="Pieces\SquarePiece.cs" />
+    <Compile Include="Pieces\TPiece.cs" />
+    <Compile Include="Pieces\ZPiece.cs" />
     <Compile Include="Tetris.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
