@@ -43,12 +43,6 @@
   <ItemGroup>
     <Compile Include="InputHelper.cs" />
     <Compile Include="LPiece.cs" />
-    <Compile Include="JPiece.cs" />
-    <Compile Include="IPiece.cs" />
-    <Compile Include="ZPiece.cs" />
-    <Compile Include="SPiece.cs" />
-    <Compile Include="OPiece.cs" />
-    <Compile Include="TPiece.cs" />
     <Compile Include="Tetris.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
