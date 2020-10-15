@@ -28,9 +28,11 @@ namespace Tetris2
         private const float GravityMultiplier = 10;
         private float _movementTimer;
         private const float MovementTimerReset = 0.05f;
+        private Random _random;
 
-        public TetrisGrid(int width, int height, Vector2 offset)
+        public TetrisGrid(int width, int height, Vector2 offset,int seed)
         {
+            _random = new Random(seed);
             this.offset = offset;
             grid = new int[width,height];
             t = new ZPiece(new Point(width/2-2,0), this);
@@ -76,7 +78,11 @@ namespace Tetris2
 
             if (_gravityTimer <= 0)
             {
-                t.Move(new Point(0, 1));
+                if (!t.Move(new Point(0, 1)))
+                {
+                    PlaceInGrid();
+                    SpawnNewTetronimo();
+                }
                 _gravityTimer = GravityTimerReset;
             }
             else
@@ -84,6 +90,38 @@ namespace Tetris2
                 _gravityTimer -= deltaTime * (_inputHelper.KeyDown(Keys.S) ? GravityMultiplier : 1);
             }
             
+            if(_inputHelper.KeyPressed(Keys.W)) t.Rotate(true);
+            
+        }
+
+        public void SpawnNewTetronimo()
+        {
+            int nextPiece = _random.Next(6);
+            Point p = new Point(4,0);
+            switch (nextPiece)
+            {
+                case 0:
+                    t= new IPiece(p,this);
+                    break;
+                case 1:
+                    t= new JPiece(p,this);
+                    break;
+                case 2:
+                    t= new LPiece(p,this);
+                    break;
+                case 3:
+                    t=new SPiece(p,this);
+                    break;
+                case 4:
+                    t= new SquarePiece(p,this);
+                    break;
+                case 5:
+                    t= new TPiece(p,this);
+                    break;
+                case 6:
+                    t = new ZPiece(p,this);
+                    break;
+            }
         }
 
         public bool ShapeFitsInPos(bool[,] shape, Point position)
@@ -114,7 +152,5 @@ namespace Tetris2
                 }
             }
         }
-
-
     }
 }

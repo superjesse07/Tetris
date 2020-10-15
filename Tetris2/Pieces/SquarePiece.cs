@@ -6,7 +6,7 @@ namespace Tetris2.Pieces
     {
         public SquarePiece(Point position, TetrisGrid parentGrid): base(position,parentGrid)
         {
-            color = 7;
+            color = 1;
             shape = new[,]
             {
                 {true, true},
