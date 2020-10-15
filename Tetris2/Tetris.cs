@@ -46,7 +46,7 @@ namespace Tetris2
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Tetronimo.block = Content.Load<Texture2D>("block");
-            _grid = new TetrisGrid(10,20,Vector2.Zero);
+            _grid = new TetrisGrid(10,20,Vector2.Zero,1);
 
 
         }
