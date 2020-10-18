@@ -64,8 +64,9 @@ namespace Tetris2
 
         public void Draw(SpriteBatch spriteBatch,GameTime gameTime)
         {
-            
+            //Draw score and level
             spriteBatch.DrawString(Tetris.font,_score.ToString(),_offset+new Vector2(0,_holdGrid.Height)*Tetronimo.BlockSize,Color.White,0,new Vector2( Tetris.font.MeasureString(_score.ToString()).X,0),1,SpriteEffects.None,0);
+            spriteBatch.DrawString(Tetris.font, (_clearedLines/LinesPerLevel).ToString(), _offset + new Vector2(0, _holdGrid.Height+2) * Tetronimo.BlockSize, Color.White, 0, new Vector2(Tetris.font.MeasureString((_clearedLines / LinesPerLevel).ToString()).X, 0), 1, SpriteEffects.None, 0);
 
             for (int x = -1; x <= _grid.GetLength(0); x++)
             {
