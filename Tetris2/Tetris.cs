@@ -22,6 +22,8 @@ namespace Tetris2
         public const int SidePanelSizes = 6; //This is the same as the 6 in Tetrisgrid for the holdGrid and nextGrid 6 because max size of piece is 4 plus 2 for outline
         private const int Divider = 4; //The amount of blocks between the two player grids
 
+        private Random _random = new Random();
+        
         public Tetris()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -41,8 +43,6 @@ namespace Tetris2
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Tetronimo.block = Content.Load<Texture2D>("block");
-            Random random = new Random();
-            int seed = random.Next();
             font = Content.Load<SpriteFont>("Arial");
 
 
@@ -68,27 +68,29 @@ namespace Tetris2
                 Exit();
 
             KeyboardState keyboard = Keyboard.GetState();
-            if (state == GameState.MainMenu)
+            if (state == GameState.MainMenu || state == GameState.Finished)
             {
                 if (keyboard.IsKeyDown(Keys.D1))
                 { 
                     _graphics.PreferredBackBufferHeight = (int) ((GridHeight + 2) * Tetronimo.BlockSize.Y); // 2 is for the outline blocks
                     _graphics.PreferredBackBufferWidth = (int) ((GridWidth + SidePanelSizes*2) * Tetronimo.BlockSize.Y); // the outline blocks are included in the side panels so no +2
                     _graphics.ApplyChanges();
+                    int seed = _random.Next();
                     players = new[]
                     {
-                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1,0) * Tetronimo.BlockSize, 1, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C)
+                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1,0) * Tetronimo.BlockSize, seed, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C)
                     };
                     state = GameState.Playing;
                 }
                 if (keyboard.IsKeyDown(Keys.D2))
                 {
+                    int seed = _random.Next();
                     _graphics.PreferredBackBufferHeight = (int) ((GridHeight + 2) * Tetronimo.BlockSize.Y); // 2 is for the outline blocks
                     _graphics.PreferredBackBufferWidth = (int) (((GridWidth + SidePanelSizes*2)*2 + Divider) * Tetronimo.BlockSize.Y); // the outline blocks are included in the side panels so no +2
                     players = new[]
                     {
-                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1,0) * Tetronimo.BlockSize, 1, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C),
-                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1 + SidePanelSizes*2 + GridWidth+Divider,0) * Tetronimo.BlockSize, 1, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C)
+                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1,0) * Tetronimo.BlockSize, seed, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C),
+                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1 + SidePanelSizes*2 + GridWidth+Divider,0) * Tetronimo.BlockSize, seed, Keys.Left, Keys.Right, Keys.Down, Keys.Up, Keys.RightControl, Keys.RightShift)
                     };
                     _graphics.ApplyChanges();
                     state = GameState.Playing;
@@ -99,6 +101,10 @@ namespace Tetris2
                 foreach (var player in players)
                 {
                     player.Update(gameTime);
+                    if (player.lost)
+                    {
+                        state = GameState.Finished;
+                    }
                 }
             }
 
@@ -114,7 +120,7 @@ namespace Tetris2
             GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin();
-            if (state == GameState.Playing)
+            if (state == GameState.Playing || state == GameState.Finished)
             {
                 foreach (var player in players)
                 {

@@ -16,12 +16,12 @@ namespace Tetris2
     public class TetrisGrid
     {
         private int[,] _grid;
-        
+
         private Color _outline = Color.White;
-        public static Color[] colors = {new Color(25,25,25), Color.Yellow, Color.Aqua, Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Orange};
+        public static Color[] colors = {new Color(25, 25, 25), Color.Yellow, Color.Aqua, Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Orange};
         private readonly Vector2 _offset;
 
-        private Tetronimo _currentTetronimo,_holdTetronimo,_nextTetronimo;
+        private Tetronimo _currentTetronimo, _holdTetronimo, _nextTetronimo;
 
         private readonly InputHelper _inputHelper;
         private float _gravityTimer = 0.5f;
@@ -33,8 +33,8 @@ namespace Tetris2
         private const float MovementTimerReset = 0.1f;
         private readonly Random _random;
         private bool _hasHeld;
-        
-        private readonly Rectangle _holdGrid = new Rectangle(-5,0,Tetris.SidePanelSizes,Tetris.SidePanelSizes);
+
+        private readonly Rectangle _holdGrid = new Rectangle(-5, 0, Tetris.SidePanelSizes, Tetris.SidePanelSizes);
         private readonly Rectangle _nextGrid;
 
         private int _clearedLines;
@@ -46,7 +46,7 @@ namespace Tetris2
 
         private readonly Keys _left, _right, _down, _rotate, _place, _hold;
 
-        public TetrisGrid(int width, int height, Vector2 offset,int seed, Keys left, Keys right, Keys down, Keys rotate, Keys place, Keys hold)
+        public TetrisGrid(int width, int height, Vector2 offset, int seed, Keys left, Keys right, Keys down, Keys rotate, Keys place, Keys hold)
         {
             _random = new Random(seed);
             _offset = offset;
@@ -56,40 +56,40 @@ namespace Tetris2
             _rotate = rotate;
             _place = place;
             _hold = hold;
-            _grid = new int[width,height];
+            _grid = new int[width, height];
             _inputHelper = new InputHelper();
-            _nextGrid = new Rectangle(width+1,0,Tetris.SidePanelSizes,Tetris.SidePanelSizes);
+            _nextGrid = new Rectangle(width + 1, 0, Tetris.SidePanelSizes, Tetris.SidePanelSizes);
             SpawnNewTetronimo();
         }
 
-        public void Draw(SpriteBatch spriteBatch,GameTime gameTime)
+        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             //Draw score and level
-            spriteBatch.DrawString(Tetris.font,_score.ToString(),_offset+new Vector2(0,_holdGrid.Height)*Tetronimo.BlockSize,Color.White,0,new Vector2( Tetris.font.MeasureString(_score.ToString()).X,0),1,SpriteEffects.None,0);
-            spriteBatch.DrawString(Tetris.font, (_clearedLines/LinesPerLevel).ToString(), _offset + new Vector2(0, _holdGrid.Height+2) * Tetronimo.BlockSize, Color.White, 0, new Vector2(Tetris.font.MeasureString((_clearedLines / LinesPerLevel).ToString()).X, 0), 1, SpriteEffects.None, 0);
+            spriteBatch.DrawString(Tetris.font, _score.ToString(), _offset + new Vector2(0, _holdGrid.Height) * Tetronimo.BlockSize, Color.White, 0, new Vector2(Tetris.font.MeasureString(_score.ToString()).X, 0), 0.75f, SpriteEffects.None, 0);
+            string level = "Level: " + (_clearedLines / LinesPerLevel).ToString();
+            spriteBatch.DrawString(Tetris.font, level, _offset + new Vector2(0, _holdGrid.Height + 1) * Tetronimo.BlockSize, Color.White, 0, new Vector2(Tetris.font.MeasureString(level).X, 0), 0.75f, SpriteEffects.None, 0);
 
             for (int x = -1; x <= _grid.GetLength(0); x++)
             {
                 for (int y = -1; y <= _grid.GetLength(1); y++)
                 {
                     bool isOutline = x == -1 || y == -1 || x == _grid.GetLength(0) || y == _grid.GetLength(1);
-                    spriteBatch.Draw(Tetronimo.block, new Vector2(x+1,y+1)*Tetronimo.BlockSize + _offset,isOutline ? _outline : colors[_grid[x,y]]);
+                    spriteBatch.Draw(Tetronimo.block, new Vector2(x + 1, y + 1) * Tetronimo.BlockSize + _offset, isOutline ? _outline : colors[_grid[x, y]]);
                 }
             }
-            
+
             //Draw the hold grid
-            DrawRectangle(spriteBatch,_holdGrid);
-            DrawRectangle(spriteBatch,_nextGrid);
+            DrawRectangle(spriteBatch, _holdGrid);
+            DrawRectangle(spriteBatch, _nextGrid);
 
 
-            
             DrawTetronimoInRect(spriteBatch, _holdTetronimo, _holdGrid);
             DrawTetronimoInRect(spriteBatch, _nextTetronimo, _nextGrid);
 
-            _currentTetronimo?.Draw(spriteBatch, _offset + Tetronimo.BlockSize * (lost ? new Vector2(1,0) : new Vector2(1,1)));
-            
+            _currentTetronimo?.Draw(spriteBatch, _offset + Tetronimo.BlockSize * (lost ? new Vector2(1, 0) : new Vector2(1, 1)));
+
             //Display Controls
-            spriteBatch.DrawString(Tetris.font,$"Left: {_left.ToString()}\nRight: {_right.ToString()}\nDown: {_down.ToString()}\nRotate: {_rotate.ToString()}\nPlace: {_place.ToString()}\nHold: {_hold.ToString()}",_offset + new Vector2(_grid.GetLength(0) + 2,_holdGrid.Height) * Tetronimo.BlockSize,Color.White,0,Vector2.Zero,0.5f,SpriteEffects.None,0);
+            spriteBatch.DrawString(Tetris.font, $"Left: {_left.ToString()}\nRight: {_right.ToString()}\nDown: {_down.ToString()}\nRotate: {_rotate.ToString()}\nPlace: {_place.ToString()}\nHold: {_hold.ToString()}", _offset + new Vector2(_grid.GetLength(0) + 2, _holdGrid.Height) * Tetronimo.BlockSize, Color.White, 0, Vector2.Zero, 0.4f, SpriteEffects.None, 0);
         }
 
         private void DrawTetronimoInRect(SpriteBatch spriteBatch, Tetronimo tetronimo, Rectangle rect)
@@ -98,13 +98,13 @@ namespace Tetris2
         }
 
 
-        private void DrawRectangle(SpriteBatch spriteBatch,Rectangle rect)
+        private void DrawRectangle(SpriteBatch spriteBatch, Rectangle rect)
         {
             for (int x = 0; x < rect.Width; x++)
             {
                 for (int y = 0; y < rect.Height; y++)
                 {
-                    bool isOutline = x == 0 || y == 0 || x == rect.Width-1 || y == rect.Height-1;
+                    bool isOutline = x == 0 || y == 0 || x == rect.Width - 1 || y == rect.Height - 1;
                     if (isOutline)
                     {
                         spriteBatch.Draw(Tetronimo.block, (new Vector2(x, y) + new Vector2(rect.X, rect.Y)) * Tetronimo.BlockSize + _offset, _outline);
@@ -112,11 +112,14 @@ namespace Tetris2
                 }
             }
         }
-
+        /// <summary>
+        /// handles the logic for the grid
+        /// </summary>
+        /// <param name="gameTime"></param>
         public void Update(GameTime gameTime)
         {
             if (lost) return;
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float deltaTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
             _inputHelper.Update(gameTime);
 
             if (_movementTimer <= 0)
@@ -143,19 +146,20 @@ namespace Tetris2
                 {
                     PlaceInGrid();
                 }
-                _gravityTimer = GravityTimerReset - GravityTimerSubtractPerLevel * Math.Min(MaxLevel,_clearedLines/LinesPerLevel);
+
+                _gravityTimer = GravityTimerReset - GravityTimerSubtractPerLevel * Math.Min(MaxLevel, _clearedLines / LinesPerLevel);
             }
             else
             {
                 _gravityTimer -= deltaTime * (_inputHelper.KeyDown(_down) ? DownPressGravityMultiplier : 1);
             }
-            
-            if(_inputHelper.KeyPressed(_rotate)) _currentTetronimo.Rotate(true);
+
+            if (_inputHelper.KeyPressed(_rotate)) _currentTetronimo.Rotate(true);
             if (_inputHelper.KeyPressed(_place))
             {
-                while (_currentTetronimo.Move(new Point(0, 1))) {}
+                while (_currentTetronimo.Move(new Point(0, 1))) ;
 
-                PlaceInGrid();
+                    PlaceInGrid();
             }
 
             if (_inputHelper.KeyPressed(_hold) && !_hasHeld)
@@ -163,11 +167,11 @@ namespace Tetris2
                 var temp = _holdTetronimo;
                 _holdTetronimo = _currentTetronimo;
                 _holdTetronimo.position = Point.Zero;
-                if(temp == null)
+                if (temp == null)
                     SpawnNewTetronimo();
                 else
                 {
-                    _currentTetronimo = temp; 
+                    _currentTetronimo = temp;
                     PlaceCurrentTetronimo();
                 }
 
@@ -175,10 +179,11 @@ namespace Tetris2
             }
         }
 
-
+        /// <summary>
+        /// Checks for filled lines and removes them, then it moves down all the lines above it
+        /// </summary>
         private void ClearLines()
         {
-
             int fullLines = 0;
             for (int y = 0; y < _grid.GetLength(1); y++)
             {
@@ -199,7 +204,7 @@ namespace Tetris2
                     {
                         for (int x = 0; x < _grid.GetLength(0); x++)
                         {
-                            _grid[x, oldY] = _grid[x,oldY - 1];
+                            _grid[x, oldY] = _grid[x, oldY - 1];
                         }
                     }
                 }
@@ -212,6 +217,10 @@ namespace Tetris2
             }
         }
 
+        /// <summary>
+        /// sets current tetronimo to next and picks a new one for the next tetronimo
+        /// also checks if the current one fits and if not ends the game
+        /// </summary>
         private void SpawnNewTetronimo()
         {
             _currentTetronimo = _currentTetronimo == null ? GetRandomTetronimo() : _nextTetronimo;
@@ -225,9 +234,14 @@ namespace Tetris2
             }
         }
 
+
+        /// <summary>
+        /// Pick a random tetronimo out of the 7 possible
+        /// </summary>
+        /// <returns>a random tetronimo</returns>
         private Tetronimo GetRandomTetronimo()
         {
-            int nextPiece = _random.Next(6);
+            int nextPiece = _random.Next(7); // apparently maxvalue is not really max value so to have it pick 6 it has to be 7 ¯\_(ツ)_/¯
             switch (nextPiece)
             {
                 case 0:
@@ -247,9 +261,12 @@ namespace Tetris2
             }
         }
 
+        /// <summary>
+        /// Positions the current tetronimo at the spawn position
+        /// </summary>
         private void PlaceCurrentTetronimo()
         {
-            Point spawnPos =  new Point((int)( _grid.GetLength(0)-_currentTetronimo.Size.X)/2,0);
+            Point spawnPos = new Point((int) (_grid.GetLength(0) - _currentTetronimo.Size.X) / 2, 0);
             for (int y = 0; y < _currentTetronimo.shape.GetLength(1); y++)
             {
                 bool hasBlockInRow = false;
@@ -264,15 +281,20 @@ namespace Tetris2
 
                 if (hasBlockInRow)
                 {
-                    spawnPos -= new Point(0,y);
+                    spawnPos -= new Point(0, y);
                     break;
                 }
             }
 
             _currentTetronimo.position = spawnPos;
-
         }
 
+        /// <summary>
+        /// Checks if the supplied shape with the supplied position fits in the grid
+        /// </summary>
+        /// <param name="shape">the shape to check</param>
+        /// <param name="position">the position of the shape</param>
+        /// <returns>if the shape fits</returns>
         public bool ShapeFitsInPos(bool[,] shape, Point position)
         {
             for (int x = 0; x < shape.GetLength(0); x++)
@@ -280,7 +302,7 @@ namespace Tetris2
                 for (int y = 0; y < shape.GetLength(1); y++)
                 {
                     if (shape[x, y] == false) continue;
-                    Point blockPosition = new Point(x,y) + position;
+                    Point blockPosition = new Point(x, y) + position;
                     if (blockPosition.X < 0 || blockPosition.Y < 0 || blockPosition.X >= _grid.GetLength(0) || blockPosition.Y >= _grid.GetLength(1)) return false;
                     if (_grid[blockPosition.X, blockPosition.Y] != 0) return false;
                 }
@@ -289,14 +311,16 @@ namespace Tetris2
             return true;
         }
 
-
+        /// <summary>
+        /// Places the current tetronimo in the grid at it's current location
+        /// </summary>
         private void PlaceInGrid()
         {
             for (int x = 0; x < _currentTetronimo.shape.GetLength(0); x++)
             {
                 for (int y = 0; y < _currentTetronimo.shape.GetLength(1); y++)
                 {
-                    if(_currentTetronimo.shape[x,y])
+                    if (_currentTetronimo.shape[x, y])
                         _grid[x + _currentTetronimo.position.X, y + _currentTetronimo.position.Y] = _currentTetronimo.color;
                 }
             }
