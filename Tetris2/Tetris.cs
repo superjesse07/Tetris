@@ -12,12 +12,15 @@ namespace Tetris2
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private TetrisGrid _grid;
         public static SpriteFont font;
+        public static GameState state;
 
 
         public static readonly int[] scorePerLine = {40, 100, 300, 1200};
-
+        public TetrisGrid[] players;
+        private const int gridWidth=10, gridHeight = 20; //the sizes of the grids
+        private const int sidePanelSizes = 6; //This is the same as the 6 in Tetrisgrid for the holdGrid and nextGrid 6 because max size of piece is 4 plus 2 for outline
+        private const int divider = 4; //The amount of blocks between the two player grids
 
         public Tetris()
         {
@@ -27,19 +30,7 @@ namespace Tetris2
             _graphics.PreferredBackBufferHeight = 800;
             IsMouseVisible = true;
         }
-
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
-        protected override void Initialize()
-        {
-            // TODO: Add your initialization logic here
-            base.Initialize();
-        }
-
+        
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
@@ -52,7 +43,6 @@ namespace Tetris2
             Tetronimo.block = Content.Load<Texture2D>("block");
             Random random = new Random();
             int seed = random.Next();
-            _grid = new TetrisGrid(10,20,new Vector2(5,0) * Tetronimo.BlockSize, seed,Keys.A,Keys.D,Keys.S,Keys.W,Keys.Space,Keys.E);
             font = Content.Load<SpriteFont>("Arial");
 
 
@@ -76,7 +66,32 @@ namespace Tetris2
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            _grid.Update(gameTime);
+
+            KeyboardState keyboard = Keyboard.GetState();
+            if (state == GameState.MainMenu)
+            {
+                if (keyboard.IsKeyDown(Keys.D1))
+                { 
+                    _graphics.PreferredBackBufferHeight = (int) ((gridHeight + 2) * Tetronimo.BlockSize.Y); // 2 is for the outline blocks
+                    _graphics.PreferredBackBufferWidth = (int) ((gridWidth + sidePanelSizes*2) * Tetronimo.BlockSize.Y); // the outline blocks are included in the side panels so no +2
+                    _graphics.ApplyChanges();
+                    players = new[] {new TetrisGrid(gridWidth, gridHeight, new Vector2(sidePanelSizes-1,0) * Tetronimo.BlockSize, 1, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C)};
+                    state = GameState.Playing;
+                }
+                if (keyboard.IsKeyDown(Keys.D2))
+                {
+                    _graphics.PreferredBackBufferHeight = (int) ((gridHeight + 2) * Tetronimo.BlockSize.Y); // 2 is for the outline blocks
+                    _graphics.PreferredBackBufferWidth = (int) (((gridWidth + sidePanelSizes*2)*2 + divider) * Tetronimo.BlockSize.Y); // the outline blocks are included in the side panels so no +2
+                    _graphics.ApplyChanges();
+                }
+            }
+            else if (state == GameState.Playing)
+            {
+                foreach (var player in players)
+                {
+                    player.Update(gameTime);
+                }
+            }
 
             base.Update(gameTime);
         }
@@ -90,7 +105,14 @@ namespace Tetris2
             GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin();
-            _grid.Draw(_spriteBatch,gameTime);
+            if (state == GameState.Playing)
+            {
+                foreach (var player in players)
+                {
+                    player.Draw(_spriteBatch, gameTime);
+                }
+            }
+
             _spriteBatch.End();
 
             base.Draw(gameTime);
