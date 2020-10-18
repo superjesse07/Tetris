@@ -88,7 +88,7 @@ namespace Tetris2
             _currentTetronimo?.Draw(spriteBatch, _offset + Tetronimo.BlockSize * (lost ? new Vector2(1,0) : new Vector2(1,1)));
             
             //Display Controls
-            spriteBatch.DrawString(Tetris.font,$"Left: {_left.ToString()}\nRight: {_right.ToString()}",_offset + new Vector2(_grid.GetLength(0) + 2,_holdGrid.Height) * Tetronimo.BlockSize,Color.White,0,Vector2.Zero,0.5f,SpriteEffects.None,0);
+            spriteBatch.DrawString(Tetris.font,$"Left: {_left.ToString()}\nRight: {_right.ToString()}\nDown: {_down.ToString()}\nRotate: {_rotate.ToString()}\nPlace: {_place.ToString()}\nHold: {_hold.ToString()}",_offset + new Vector2(_grid.GetLength(0) + 2,_holdGrid.Height) * Tetronimo.BlockSize,Color.White,0,Vector2.Zero,0.5f,SpriteEffects.None,0);
         }
 
         private void DrawTetronimoInRect(SpriteBatch spriteBatch, Tetronimo tetronimo, Rectangle rect)
