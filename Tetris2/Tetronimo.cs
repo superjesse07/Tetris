@@ -48,6 +48,11 @@ namespace Tetris2
                 shape = rotated;
         }
 
+        public bool Fits()
+        {
+            return parentGrid.ShapeFitsInPos(shape, position);
+        }
+
         public bool Move(Point dir)
         {
             bool canMove = parentGrid.ShapeFitsInPos(shape, position + dir);

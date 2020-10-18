@@ -81,6 +81,7 @@ namespace Tetris2
                 if (!t.Move(new Point(0, 1)))
                 {
                     PlaceInGrid();
+                    ClearLines();
                     SpawnNewTetronimo();
                 }
                 _gravityTimer = GravityTimerReset;
@@ -91,10 +92,40 @@ namespace Tetris2
             }
             
             if(_inputHelper.KeyPressed(Keys.W)) t.Rotate(true);
-            
         }
 
-        public void SpawnNewTetronimo()
+
+        private void ClearLines()
+        {
+
+            int fullLines = 0;
+            for (int y = 0; y < grid.GetLength(1); y++)
+            {
+                bool isFull = true;
+                for (int x = 0; x < grid.GetLength(0); x++)
+                {
+                    if (grid[x, y] == 0)
+                    {
+                        isFull = false;
+                        break;
+                    }
+                }
+
+                if (isFull)
+                {
+                    fullLines++;
+                    for (int oldY = y; oldY > 0; oldY--)
+                    {
+                        for (int x = 0; x < grid.GetLength(0); x++)
+                        {
+                            grid[x, oldY] = grid[x,oldY - 1];
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SpawnNewTetronimo()
         {
             int nextPiece = _random.Next(6);
             Point p = new Point(4,0);
@@ -141,7 +172,7 @@ namespace Tetris2
         }
 
 
-        public void PlaceInGrid()
+        private void PlaceInGrid()
         {
             for (int x = 0; x < t.shape.GetLength(0); x++)
             {
