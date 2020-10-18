@@ -8,17 +8,17 @@ namespace Tetris2
 {
     public abstract class Tetronimo
     {
-        public static Texture2D block;
-        public static Vector2 BlockSize => new Vector2(block.Width, block.Height);
-        public Point position;
-        public Vector2 Vector2Position => new Vector2(position.X,position.Y);
-        public bool[,] shape { get; protected set; }
-        public Vector2 Size => new Vector2(shape.GetLength(0), shape.GetLength(1));
-        public int color;
-        private TetrisGrid parentGrid;
+        public static Texture2D block; //block texture
+        public static Vector2 BlockSize => new Vector2(block.Width, block.Height); //Block Size dependent on the texture
+        public Point position; //position of the tetronimo. Upper left corner
+        private Vector2 Vector2Position => new Vector2(position.X,position.Y); //A vector2 of the position
+        public bool[,] shape { get; protected set; } //type of tetronimo
+        public Vector2 Size => new Vector2(shape.GetLength(0), shape.GetLength(1)); //GridSize of the tetronimo x and y
+        public int color; //color(colour) of the tetronimo piece
+        private TetrisGrid parentGrid; //Copy of the current grid 
 
 
-        protected Tetronimo(TetrisGrid parentGrid)
+        protected Tetronimo(TetrisGrid parentGrid) //getting access to the TetrisGrid
         {
             this.parentGrid = parentGrid;
         }
@@ -44,26 +44,26 @@ namespace Tetris2
                         rotated[x, y] = shape[size - y - 1, x]; //here we do the same but we negate the y 
                 }
             }
-            if(parentGrid.ShapeFitsInPos(rotated,position))
+            if(parentGrid.ShapeFitsInPos(rotated,position)) //check if the shape fits when it is rotated
                 shape = rotated;
-            else if (parentGrid.ShapeFitsInPos(rotated, position + new Point(1, 0)))
+            else if (parentGrid.ShapeFitsInPos(rotated, position + new Point(1, 0))) //check if the shape fits when rotated in the space to the right next to the rotated tetronimo
             {
                 shape = rotated;
-                position+=new Point(1,0);
+                position+=new Point(1,0); //update tetronimo pos (this is called a kick)
             }
-            else if (parentGrid.ShapeFitsInPos(rotated, position + new Point(-1, 0)))
+            else if (parentGrid.ShapeFitsInPos(rotated, position + new Point(-1, 0))) //check if the shape fits when rotated in the space to the left next to the rotated tetronimo
             {
                 shape = rotated;
-                position-=new Point(1,0);
+                position-=new Point(1,0); //update tetronimo pos (this is called a kick)
             }
         }
 
-        public bool Fits()
+        public bool Fits() // return true if the shape fits in the position
         {
             return parentGrid.ShapeFitsInPos(shape, position);
         }
 
-        public bool Move(Point dir)
+        public bool Move(Point dir) //return true if the move can be done
         {
             bool canMove = parentGrid.ShapeFitsInPos(shape, position + dir);
             if (canMove)
@@ -75,6 +75,10 @@ namespace Tetris2
 
         }
 
+        /// <summary>
+        /// This is called when the game should draw itself.
+        /// </summary>
+        /// <param name="offset">Provides a offset for the grid.</param>
         public void Draw(SpriteBatch spriteBatch,Vector2 offset)
         {
             for (int x = 0; x < shape.GetLength(0); x++)
