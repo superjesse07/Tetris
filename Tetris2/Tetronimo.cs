@@ -44,14 +44,14 @@ namespace Tetris2
                         rotated[x, y] = shape[size - y - 1, x]; //here we do the same but we negate the y 
                 }
             }
-            if(parentGrid.ShapeFitsInPos(rotated,position))
+            if(parentGrid.ShapeFitsInPos(rotated,position)) // checks if the rotation fits
                 shape = rotated;
-            else if (parentGrid.ShapeFitsInPos(rotated, position + new Point(1, 0)))
+            else if (parentGrid.ShapeFitsInPos(rotated, position + new Point(1, 0))) // checks if the rotation is possible if moved to the side
             {
                 shape = rotated;
                 position+=new Point(1,0);
             }
-            else if (parentGrid.ShapeFitsInPos(rotated, position + new Point(-1, 0)))
+            else if (parentGrid.ShapeFitsInPos(rotated, position + new Point(-1, 0))) // checks if the rotation is possible if moved to the side
             {
                 shape = rotated;
                 position-=new Point(1,0);

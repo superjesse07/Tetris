@@ -32,3 +32,15 @@
 /processorParam:TextureFormat=Compressed
 /build:Arial.spritefont
 
+#begin Tetris.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Tetris.mp3
+
+#begin hitsfx.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:hitsfx.wav
+

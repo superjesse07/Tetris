@@ -18,7 +18,7 @@ namespace Tetris2
         private int[,] _grid;
 
         private Color _outline = Color.White;
-        public static Color[] colors = {new Color(25, 25, 25), Color.Yellow, Color.Aqua, Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Orange};
+        public static Color[] colors = {new Color(25, 25, 25), Color.Yellow, Color.Aqua, Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Orange,Color.Gray};
         private readonly Vector2 _offset;
 
         private Tetronimo _currentTetronimo, _holdTetronimo, _nextTetronimo;
@@ -43,6 +43,8 @@ namespace Tetris2
 
         private int _score;
         public bool lost;
+
+        public int garbageLines;
 
         private readonly Keys _left, _right, _down, _rotate, _place, _hold;
 
@@ -214,6 +216,7 @@ namespace Tetris2
             {
                 _score += Tetris.scorePerLine[Math.Min(fullLines - 1, Tetris.scorePerLine.Length)]; //add the defined scores per line to the score variable ( The math.min is only there for absolute certainty even though you can't clear more than 4 at once)
                 _clearedLines += fullLines;
+                Tetris.tetris.SendGarbageLines((int)Math.Floor(fullLines/2f),this);
             }
         }
 
@@ -311,6 +314,30 @@ namespace Tetris2
             return true;
         }
 
+        public void CreateGarbageLines()
+        {
+            while (garbageLines > 0)
+            {
+                int emptySpot = _random.Next(0, _grid.GetLength(0));
+                for (int y = 0; y < _grid.GetLength(1); y++)
+                {
+                    for (int x = 0; x < _grid.GetLength(0); x++)
+                    {
+                        if (y == _grid.GetLength(1) - 1)
+                        {
+                            if(x == emptySpot)_grid[x,y] = 0; //Leave the empty spot empty
+                            else _grid[x, y] = colors.Length - 1; // fill the rest with gray tiles (the last color)
+                        }
+                        else
+                        {
+                            _grid[x, y] = _grid[x, y + 1]; //Move all tiles up
+                        }
+                    }
+                }
+                garbageLines--;
+            }   
+        }
+
         /// <summary>
         /// Places the current tetronimo in the grid at it's current location
         /// </summary>
@@ -320,13 +347,15 @@ namespace Tetris2
             {
                 for (int y = 0; y < _currentTetronimo.shape.GetLength(1); y++)
                 {
-                    if (_currentTetronimo.shape[x, y])
+                    if (_currentTetronimo.shape[x, y]) //only fill in the spaces that have blocks in them
                         _grid[x + _currentTetronimo.position.X, y + _currentTetronimo.position.Y] = _currentTetronimo.color;
                 }
             }
 
             _hasHeld = false;
+            Tetris.placeSFX.Play();
             ClearLines();
+            CreateGarbageLines();
             SpawnNewTetronimo();
         }
     }
