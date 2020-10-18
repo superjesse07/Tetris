@@ -2,9 +2,9 @@
 
 namespace Tetris2.Pieces
 {
-    public class SquarePiece: Tetronimo
+    public class OPiece: Tetronimo
     {
-        public SquarePiece(Point position, TetrisGrid parentGrid): base(position,parentGrid)
+        public OPiece(TetrisGrid parentGrid): base(parentGrid)
         {
             color = 1;
             shape = new[,]

@@ -4,7 +4,7 @@ namespace Tetris2.Pieces
 {
     public class ZPiece : Tetronimo
     {
-        public ZPiece(Point position, TetrisGrid parentGrid): base(position,parentGrid)
+        public ZPiece(TetrisGrid parentGrid): base(parentGrid)
         {
             color = 4;
             shape = new[,]

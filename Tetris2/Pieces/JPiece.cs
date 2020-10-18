@@ -4,7 +4,7 @@ namespace Tetris2.Pieces
 {
     public class JPiece: Tetronimo
     {
-        public JPiece(Point position, TetrisGrid parentGrid): base(position,parentGrid)
+        public JPiece(TetrisGrid parentGrid): base(parentGrid)
         {
             color = 6;
             shape = new[,]

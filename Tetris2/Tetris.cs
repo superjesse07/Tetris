@@ -13,6 +13,10 @@ namespace Tetris2
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private TetrisGrid _grid;
+        public static SpriteFont font;
+
+
+        public static readonly int[] scorePerLine = {40, 100, 300, 1200};
 
 
         public Tetris()
@@ -46,7 +50,10 @@ namespace Tetris2
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Tetronimo.block = Content.Load<Texture2D>("block");
-            _grid = new TetrisGrid(10,20,Vector2.Zero,1);
+            Random random = new Random();
+            int seed = random.Next();
+            _grid = new TetrisGrid(10,20,new Vector2(5,0) * Tetronimo.BlockSize, seed,Keys.A,Keys.D,Keys.S,Keys.W,Keys.Space,Keys.E);
+            font = Content.Load<SpriteFont>("Arial");
 
 
         }

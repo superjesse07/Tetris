@@ -12,14 +12,14 @@ namespace Tetris2
         public static Vector2 BlockSize => new Vector2(block.Width, block.Height);
         public Point position;
         public Vector2 Vector2Position => new Vector2(position.X,position.Y);
-        public bool[,] shape;
+        public bool[,] shape { get; protected set; }
+        public Vector2 Size => new Vector2(shape.GetLength(0), shape.GetLength(1));
         public int color;
         private TetrisGrid parentGrid;
 
 
-        protected Tetronimo(Point position, TetrisGrid parentGrid)
+        protected Tetronimo(TetrisGrid parentGrid)
         {
-            this.position = position;
             this.parentGrid = parentGrid;
         }
 
@@ -46,6 +46,16 @@ namespace Tetris2
             }
             if(parentGrid.ShapeFitsInPos(rotated,position))
                 shape = rotated;
+            else if (parentGrid.ShapeFitsInPos(rotated, position + new Point(1, 0)))
+            {
+                shape = rotated;
+                position+=new Point(1,0);
+            }
+            else if (parentGrid.ShapeFitsInPos(rotated, position + new Point(-1, 0)))
+            {
+                shape = rotated;
+                position-=new Point(1,0);
+            }
         }
 
         public bool Fits()
