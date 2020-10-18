@@ -20,25 +20,24 @@ namespace Tetris2
         public static GameState state;
         public static Tetris tetris { private set; get; }
 
-        public static readonly int[] scorePerLine = {40, 100, 300, 1200};
-        public TetrisGrid[] players;
+        public static readonly int[] scorePerLine = {40, 100, 300, 1200}; //Score for clearing lines
+        public TetrisGrid[] players; //Seperately stores the games for the different players 
         private const int GridWidth=10, GridHeight = 20; //the sizes of the grids
         public const int SidePanelSizes = 6; //This is the same as the 6 in Tetrisgrid for the holdGrid and nextGrid 6 because max size of piece is 4 plus 2 for outline
         private const int Divider = 4; //The amount of blocks between the two player grids
-        private Vector2 ScreenSize => new Vector2(Window.ClientBounds.Width,Window.ClientBounds.Height);
+        private Vector2 ScreenSize => new Vector2(Window.ClientBounds.Width,Window.ClientBounds.Height); //Var for the screensize
         
         private Random _random = new Random();
         private Song song;
         public static SoundEffect placeSFX;
         
-        public Tetris()
+        public Tetris() //Initial screen when you launch the game
         {
             tetris = this;
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             _graphics.PreferredBackBufferWidth = 800;
             _graphics.PreferredBackBufferHeight = 800;
-            IsMouseVisible = true;
         }
         
         /// <summary>
@@ -50,14 +49,14 @@ namespace Tetris2
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            Tetronimo.block = Content.Load<Texture2D>("block");
-            font = Content.Load<SpriteFont>("Arial");
-            song = Content.Load<Song>("Tetris");
-            placeSFX = Content.Load<SoundEffect>("hitsfx");
-            SoundEffect.MasterVolume = 0.1f;
-            MediaPlayer.Play(song);
+            Tetronimo.block = Content.Load<Texture2D>("block"); //load the block texture (homemade)
+            font = Content.Load<SpriteFont>("Arial"); //load the textfont
+            song = Content.Load<Song>("Tetris"); //load the song
+            placeSFX = Content.Load<SoundEffect>("hitsfx"); //load the sound effects
+            SoundEffect.MasterVolume = 0.1f; //To make sure you're not earraped
+            MediaPlayer.Play(song); 
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Volume = 0.1f;
+            MediaPlayer.Volume = 0.1f; //To make sure you're not earraped
         }
 
         /// <summary>
@@ -76,13 +75,13 @@ namespace Tetris2
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) //To make sure you can accidentally close the game
                 Exit();
 
             KeyboardState keyboard = Keyboard.GetState();
             if (state == GameState.MainMenu)
             {
-                if (keyboard.IsKeyDown(Keys.D1))
+                if (keyboard.IsKeyDown(Keys.D1)) //Press 1 for single player
                 { 
                     //change the screen size to fit one window
                     _graphics.PreferredBackBufferHeight = (int) ((GridHeight + 2) * Tetronimo.BlockSize.Y); // 2 is for the outline blocks
@@ -91,38 +90,38 @@ namespace Tetris2
                     int seed = _random.Next();
                     players = new[]
                     {
-                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1,0) * Tetronimo.BlockSize, seed, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C)
+                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1,0) * Tetronimo.BlockSize, seed, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C) //Make a new instance of the game
                     };
-                    state = GameState.Playing;
+                    state = GameState.Playing; //Set gamestate
                 }
-                if (keyboard.IsKeyDown(Keys.D2))
+                if (keyboard.IsKeyDown(Keys.D2)) //Press 2 for multiplayer battle
                 {
                     int seed = _random.Next();
                     _graphics.PreferredBackBufferHeight = (int) ((GridHeight + 2) * Tetronimo.BlockSize.Y); // 2 is for the outline blocks
                     _graphics.PreferredBackBufferWidth = (int) (((GridWidth + SidePanelSizes*2)*2 + Divider) * Tetronimo.BlockSize.Y); // the outline blocks are included in the side panels so no +2
                     players = new[]
                     {
-                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1,0) * Tetronimo.BlockSize, seed, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C),
-                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1 + SidePanelSizes*2 + GridWidth+Divider,0) * Tetronimo.BlockSize, seed, Keys.Left, Keys.Right, Keys.Down, Keys.Up, Keys.RightControl, Keys.RightShift)
+                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1,0) * Tetronimo.BlockSize, seed, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C), //Make a new instance of the game
+                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1 + SidePanelSizes*2 + GridWidth+Divider,0) * Tetronimo.BlockSize, seed, Keys.Left, Keys.Right, Keys.Down, Keys.Up, Keys.RightControl, Keys.RightShift) //Make a new instance of the game with different controls and a offset
                     };
                     _graphics.ApplyChanges();
-                    state = GameState.Playing;
+                    state = GameState.Playing; //Set gamestate
                 }
             }
             else if (state == GameState.Playing)
             {
                 foreach (var player in players)
                 {
-                    player.Update(gameTime);
-                    if (player.lost)
+                    player.Update(gameTime); //Update each players game
+                    if (player.lost) //Check if a player has lost
                     {
-                        state = GameState.Finished;
+                        state = GameState.Finished; //Update gamestate
                     }
                 }
             }
             else if (state == GameState.Finished)
             {
-                if (keyboard.IsKeyDown(Keys.Enter)) state = GameState.MainMenu;
+                if (keyboard.IsKeyDown(Keys.Enter)) state = GameState.MainMenu; //Update gamestate
             }
 
             base.Update(gameTime);
@@ -140,30 +139,30 @@ namespace Tetris2
             if (state == GameState.MainMenu)
             {
                 string mainMenuText = "Press 1 for Single-player\nor 2 for Multi-player";
-                _spriteBatch.DrawString(font,mainMenuText,ScreenSize/2,Color.White,0,font.MeasureString(mainMenuText)/2,1,SpriteEffects.None,0);
+                _spriteBatch.DrawString(font,mainMenuText,ScreenSize/2,Color.White,0,font.MeasureString(mainMenuText)/2,1,SpriteEffects.None,0); //Draw menuscreen text
             }
             if (state == GameState.Playing || state == GameState.Finished)
             {
                 foreach (var player in players)
                 {
-                    player.Draw(_spriteBatch, gameTime);
+                    player.Draw(_spriteBatch, gameTime); //Draw the game(s)
                 }
             }
 
             if (state == GameState.Finished)
             {
                 string spaceText = "Press enter to continue";
-                if (players.Length == 1)
+                if (players.Length == 1) //Check for multiplayer
                 {
                     string finishedText = "You lost";
-                    _spriteBatch.DrawString(font, finishedText, ScreenSize / 2, Color.White, 0, font.MeasureString(finishedText) / 2, 1, SpriteEffects.None, 0);
-                    _spriteBatch.DrawString(font, spaceText, ScreenSize / 2 + new Vector2(0, font.MeasureString(finishedText).Y / 1.5f), Color.White, 0, font.MeasureString(spaceText) / 2, 0.5f, SpriteEffects.None, 0);
+                    _spriteBatch.DrawString(font, finishedText, ScreenSize / 2, Color.White, 0, font.MeasureString(finishedText) / 2, 1, SpriteEffects.None, 0); //Draw loser text
+                    _spriteBatch.DrawString(font, spaceText, ScreenSize / 2 + new Vector2(0, font.MeasureString(finishedText).Y / 1.5f), Color.White, 0, font.MeasureString(spaceText) / 2, 0.5f, SpriteEffects.None, 0); //Draw 'Enter' text
                 }
                 else
                 {
                     string finishedText = $"{(players[0].lost ? "Left" : "Right")} lost";
-                    _spriteBatch.DrawString(font, finishedText, ScreenSize / 2, Color.White, 0, font.MeasureString(finishedText) / 2, 1, SpriteEffects.None, 0);
-                    _spriteBatch.DrawString(font, spaceText, ScreenSize / 2 + new Vector2(0, font.MeasureString(finishedText).Y / 1.5f), Color.White, 0, font.MeasureString(spaceText) / 2, 0.5f, SpriteEffects.None, 0);
+                    _spriteBatch.DrawString(font, finishedText, ScreenSize / 2, Color.White, 0, font.MeasureString(finishedText) / 2, 1, SpriteEffects.None, 0); //Draw loser text
+                    _spriteBatch.DrawString(font, spaceText, ScreenSize / 2 + new Vector2(0, font.MeasureString(finishedText).Y / 1.5f), Color.White, 0, font.MeasureString(spaceText) / 2, 0.5f, SpriteEffects.None, 0); //Draw 'Enter' text
                 }
             }
 
@@ -172,28 +171,15 @@ namespace Tetris2
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        /// Sends a 'garbage line' to the other player
+        /// </summary>
+        /// <param name="amount">The amound of garbage line to be added to the other player</param>
+        /// <param name="sender">The player that sends the garbage lines</param>
         public void SendGarbageLines(int amount, TetrisGrid sender)
         {
             var reciever = players.FirstOrDefault(x => x != sender);
-            if (reciever!= null) reciever.garbageLines += amount;
-        }
-        
-        /// <summary>
-        /// Gets a color that shifts over time
-        /// </summary>
-        /// <param name="time">time value in seconds</param>
-        /// <param name="speed">the speed with which the color changes</param>
-        /// <returns></returns>
-        public static Color GetRainbowColor(double time, double speed)
-        {
-
-            double value = time * speed; // the value that is used for the sine wave
-            double TAU = Math.PI * 2; // helper variable because radians go from 0 to 2PI
-            // the 3 color components of the color are all calculated by a sine wave that is offset by 1/3 PI for every next value
-            float redComponent = (float)Math.Abs(Math.Sin(value * TAU));
-            float greenComponent = (float)Math.Abs(Math.Sin(value * TAU + TAU / 3));
-            float blueComponent = (float)Math.Abs(Math.Sin(value * TAU + TAU * 2 / 3));
-            return new Color(redComponent, greenComponent, blueComponent);
+            if (reciever != null) reciever.garbageLines += amount;
         }
     }
     public enum GameState
