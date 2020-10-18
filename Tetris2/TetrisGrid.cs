@@ -18,7 +18,7 @@ namespace Tetris2
         private int[,] _grid;
         
         private Color _outline = Color.White;
-        public static Color[] colors = {Color.Black,Color.Yellow, Color.Aqua, Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Orange};
+        public static Color[] colors = {new Color(25,25,25), Color.Yellow, Color.Aqua, Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Orange};
         private readonly Vector2 _offset;
 
         private Tetronimo _currentTetronimo,_holdTetronimo,_nextTetronimo;
@@ -34,7 +34,7 @@ namespace Tetris2
         private readonly Random _random;
         private bool _hasHeld;
         
-        private readonly Rectangle _holdGrid = new Rectangle(-5,0,6,6);
+        private readonly Rectangle _holdGrid = new Rectangle(-5,0,Tetris.SidePanelSizes,Tetris.SidePanelSizes);
         private readonly Rectangle _nextGrid;
 
         private int _clearedLines;
@@ -58,7 +58,7 @@ namespace Tetris2
             _hold = hold;
             _grid = new int[width,height];
             _inputHelper = new InputHelper();
-            _nextGrid = new Rectangle(width+1,0,6,6);
+            _nextGrid = new Rectangle(width+1,0,Tetris.SidePanelSizes,Tetris.SidePanelSizes);
             SpawnNewTetronimo();
         }
 

@@ -18,9 +18,9 @@ namespace Tetris2
 
         public static readonly int[] scorePerLine = {40, 100, 300, 1200};
         public TetrisGrid[] players;
-        private const int gridWidth=10, gridHeight = 20; //the sizes of the grids
-        private const int sidePanelSizes = 6; //This is the same as the 6 in Tetrisgrid for the holdGrid and nextGrid 6 because max size of piece is 4 plus 2 for outline
-        private const int divider = 4; //The amount of blocks between the two player grids
+        private const int GridWidth=10, GridHeight = 20; //the sizes of the grids
+        public const int SidePanelSizes = 6; //This is the same as the 6 in Tetrisgrid for the holdGrid and nextGrid 6 because max size of piece is 4 plus 2 for outline
+        private const int Divider = 4; //The amount of blocks between the two player grids
 
         public Tetris()
         {
@@ -72,17 +72,26 @@ namespace Tetris2
             {
                 if (keyboard.IsKeyDown(Keys.D1))
                 { 
-                    _graphics.PreferredBackBufferHeight = (int) ((gridHeight + 2) * Tetronimo.BlockSize.Y); // 2 is for the outline blocks
-                    _graphics.PreferredBackBufferWidth = (int) ((gridWidth + sidePanelSizes*2) * Tetronimo.BlockSize.Y); // the outline blocks are included in the side panels so no +2
+                    _graphics.PreferredBackBufferHeight = (int) ((GridHeight + 2) * Tetronimo.BlockSize.Y); // 2 is for the outline blocks
+                    _graphics.PreferredBackBufferWidth = (int) ((GridWidth + SidePanelSizes*2) * Tetronimo.BlockSize.Y); // the outline blocks are included in the side panels so no +2
                     _graphics.ApplyChanges();
-                    players = new[] {new TetrisGrid(gridWidth, gridHeight, new Vector2(sidePanelSizes-1,0) * Tetronimo.BlockSize, 1, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C)};
+                    players = new[]
+                    {
+                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1,0) * Tetronimo.BlockSize, 1, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C)
+                    };
                     state = GameState.Playing;
                 }
                 if (keyboard.IsKeyDown(Keys.D2))
                 {
-                    _graphics.PreferredBackBufferHeight = (int) ((gridHeight + 2) * Tetronimo.BlockSize.Y); // 2 is for the outline blocks
-                    _graphics.PreferredBackBufferWidth = (int) (((gridWidth + sidePanelSizes*2)*2 + divider) * Tetronimo.BlockSize.Y); // the outline blocks are included in the side panels so no +2
+                    _graphics.PreferredBackBufferHeight = (int) ((GridHeight + 2) * Tetronimo.BlockSize.Y); // 2 is for the outline blocks
+                    _graphics.PreferredBackBufferWidth = (int) (((GridWidth + SidePanelSizes*2)*2 + Divider) * Tetronimo.BlockSize.Y); // the outline blocks are included in the side panels so no +2
+                    players = new[]
+                    {
+                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1,0) * Tetronimo.BlockSize, 1, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C),
+                        new TetrisGrid(GridWidth, GridHeight, new Vector2(SidePanelSizes-1 + SidePanelSizes*2 + GridWidth+Divider,0) * Tetronimo.BlockSize, 1, Keys.A, Keys.D, Keys.S, Keys.W, Keys.Space, Keys.C)
+                    };
                     _graphics.ApplyChanges();
+                    state = GameState.Playing;
                 }
             }
             else if (state == GameState.Playing)
