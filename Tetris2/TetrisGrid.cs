@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -15,36 +8,38 @@ namespace Tetris2
 {
     public class TetrisGrid
     {
-        private int[,] _grid;
+        private int[,] _grid; // the grid
 
-        private Color _outline = Color.White;
-        public static Color[] colors = {new Color(25, 25, 25), Color.Yellow, Color.Aqua, Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Orange,Color.Gray};
-        private readonly Vector2 _offset;
+        private Color _outline = Color.White; // color of outline
+        public static Color[] colors = {new Color(25, 25, 25), Color.Yellow, Color.Aqua, Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Orange, Color.Gray}; // colors of all the tiles 0 is background last is garbage tile
+        private readonly Vector2 _offset; // offset on screen
 
-        private Tetronimo _currentTetronimo, _holdTetronimo, _nextTetronimo;
+        private Tetronimo _currentTetronimo; // the current tetronimo that is dropping
+        private Tetronimo _holdTetronimo; // the tetronimo in hold position
+        private Tetronimo _nextTetronimo; // the tetronimo that is next
 
-        private readonly InputHelper _inputHelper;
-        private float _gravityTimer = 0.5f;
-        private const float GravityTimerReset = 0.5f;
-        private const float DownPressGravityMultiplier = 10;
-        private const int MaxLevel = 20;
-        private const float GravityTimerSubtractPerLevel = 0.02f;
-        private float _movementTimer;
-        private const float MovementTimerReset = 0.1f;
+        private readonly InputHelper _inputHelper; // helps
+        private float _gravityTimer = 0.5f; //keeps track of if gravity should happen
+        private const float GravityTimerReset = 0.5f; //the amount of time for gravity to happen
+        private const float DownPressGravityMultiplier = 10; // time multiplier for gravity when down is pressed
+        private const int MaxLevel = 20; // the max level
+        private const float GravityTimerSubtractPerLevel = 0.02f; //the amount of time that is subtracted from the gravity timer reset per level
+        private float _movementTimer; //keeps track of if the player can move left and right again
+        private const float MovementTimerReset = 0.1f; //the amount time between left and right movement
         private readonly Random _random;
-        private bool _hasHeld;
+        private bool _hasHeld; //has the player held a piece this turn
 
-        private readonly Rectangle _holdGrid = new Rectangle(-5, 0, Tetris.SidePanelSizes, Tetris.SidePanelSizes);
-        private readonly Rectangle _nextGrid;
+        private readonly Rectangle _holdGrid = new Rectangle(-5, 0, Tetris.SidePanelSizes, Tetris.SidePanelSizes); // the rect that holds the hold piece
+        private readonly Rectangle _nextGrid; // the rectangle that holds the next piece
 
-        private int _clearedLines;
-        private const int LinesPerLevel = 10;
+        private int _clearedLines; //the amount of lines that have been cleared in this grid
+        private const int LinesPerLevel = 10; // the amount of lines that need to be cleared per level
 
 
-        private int _score;
-        public bool lost;
+        private int _score; // the players score
+        public bool lost; //if the player has lost
 
-        public int garbageLines;
+        public int garbageLines; //the amount of garbage lines that have been send this way
 
         private readonly Keys _left, _right, _down, _rotate, _place, _hold;
 
@@ -60,23 +55,23 @@ namespace Tetris2
             _hold = hold;
             _grid = new int[width, height];
             _inputHelper = new InputHelper();
-            _nextGrid = new Rectangle(width + 1, 0, Tetris.SidePanelSizes, Tetris.SidePanelSizes);
-            SpawnNewTetronimo();
+            _nextGrid = new Rectangle(width + 1, 0, Tetris.SidePanelSizes, Tetris.SidePanelSizes); // place the next grid
+            SpawnNewTetronimo(); // spawn the first piece
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             //Draw score and level
             spriteBatch.DrawString(Tetris.font, _score.ToString(), _offset + new Vector2(0, _holdGrid.Height) * Tetronimo.BlockSize, Color.White, 0, new Vector2(Tetris.font.MeasureString(_score.ToString()).X, 0), 0.75f, SpriteEffects.None, 0);
-            string level = "Level: " + (_clearedLines / LinesPerLevel).ToString();
+            string level = "Level: " + Math.Min(_clearedLines / LinesPerLevel, MaxLevel);
             spriteBatch.DrawString(Tetris.font, level, _offset + new Vector2(0, _holdGrid.Height + 1) * Tetronimo.BlockSize, Color.White, 0, new Vector2(Tetris.font.MeasureString(level).X, 0), 0.75f, SpriteEffects.None, 0);
 
             for (int x = -1; x <= _grid.GetLength(0); x++)
             {
                 for (int y = -1; y <= _grid.GetLength(1); y++)
                 {
-                    bool isOutline = x == -1 || y == -1 || x == _grid.GetLength(0) || y == _grid.GetLength(1);
-                    spriteBatch.Draw(Tetronimo.block, new Vector2(x + 1, y + 1) * Tetronimo.BlockSize + _offset, isOutline ? _outline : colors[_grid[x, y]]);
+                    bool isOutline = x == -1 || y == -1 || x == _grid.GetLength(0) || y == _grid.GetLength(1); //check if the coordinate is part of the outline
+                    spriteBatch.Draw(Tetronimo.block, new Vector2(x + 1, y + 1) * Tetronimo.BlockSize + _offset, isOutline ? _outline : colors[_grid[x, y]]); //draw the blocks for the outline or grid
                 }
             }
 
@@ -84,29 +79,37 @@ namespace Tetris2
             DrawRectangle(spriteBatch, _holdGrid);
             DrawRectangle(spriteBatch, _nextGrid);
 
-
+            //draw the tetronimos that are in the grids
             DrawTetronimoInRect(spriteBatch, _holdTetronimo, _holdGrid);
             DrawTetronimoInRect(spriteBatch, _nextTetronimo, _nextGrid);
 
+            //draw the current tetronimo
             _currentTetronimo?.Draw(spriteBatch, _offset + Tetronimo.BlockSize * (lost ? new Vector2(1, 0) : new Vector2(1, 1)));
 
             //Display Controls
             spriteBatch.DrawString(Tetris.font, $"Left: {_left.ToString()}\nRight: {_right.ToString()}\nDown: {_down.ToString()}\nRotate: {_rotate.ToString()}\nPlace: {_place.ToString()}\nHold: {_hold.ToString()}", _offset + new Vector2(_grid.GetLength(0) + 2, _holdGrid.Height) * Tetronimo.BlockSize, Color.White, 0, Vector2.Zero, 0.4f, SpriteEffects.None, 0);
         }
 
+        /// <summary>
+        /// Draw a tetronimo in a rect
+        /// </summary>
+        /// <param name="spriteBatch">the thing used to draw</param>
+        /// <param name="tetronimo">the tetronimo to draw</param>
+        /// <param name="rect">the rect in which to draw</param>
         private void DrawTetronimoInRect(SpriteBatch spriteBatch, Tetronimo tetronimo, Rectangle rect)
         {
+            //draws the tetronimo centered in the grid
             tetronimo?.Draw(spriteBatch, _offset + (new Vector2(rect.X, rect.Y) + (new Vector2(rect.Width, rect.Height) - tetronimo.Size) / 2) * Tetronimo.BlockSize);
         }
 
-
+        //draws a grid of the size of the rectangle
         private void DrawRectangle(SpriteBatch spriteBatch, Rectangle rect)
         {
             for (int x = 0; x < rect.Width; x++)
             {
                 for (int y = 0; y < rect.Height; y++)
                 {
-                    bool isOutline = x == 0 || y == 0 || x == rect.Width - 1 || y == rect.Height - 1;
+                    bool isOutline = x == 0 || y == 0 || x == rect.Width - 1 || y == rect.Height - 1; // check if is part of the outline
                     if (isOutline)
                     {
                         spriteBatch.Draw(Tetronimo.block, (new Vector2(x, y) + new Vector2(rect.X, rect.Y)) * Tetronimo.BlockSize + _offset, _outline);
@@ -114,6 +117,7 @@ namespace Tetris2
                 }
             }
         }
+
         /// <summary>
         /// handles the logic for the grid
         /// </summary>
@@ -161,7 +165,7 @@ namespace Tetris2
             {
                 while (_currentTetronimo.Move(new Point(0, 1))) ;
 
-                    PlaceInGrid();
+                PlaceInGrid();
             }
 
             if (_inputHelper.KeyPressed(_hold) && !_hasHeld)
@@ -186,20 +190,20 @@ namespace Tetris2
         /// </summary>
         private void ClearLines()
         {
-            int fullLines = 0;
+            int fullLines = 0; // the amount of lines that have been cleared in one go
             for (int y = 0; y < _grid.GetLength(1); y++)
             {
                 bool isFull = true;
                 for (int x = 0; x < _grid.GetLength(0); x++)
                 {
-                    if (_grid[x, y] == 0)
+                    if (_grid[x, y] == 0) // if is not filled set isFull to false for this line
                     {
                         isFull = false;
                         break;
                     }
                 }
 
-                if (isFull)
+                if (isFull) // if full move everything above this line down 1
                 {
                     fullLines++;
                     for (int oldY = y; oldY > 0; oldY--)
@@ -214,9 +218,9 @@ namespace Tetris2
 
             if (fullLines > 0)
             {
-                _score += Tetris.scorePerLine[Math.Min(fullLines - 1, Tetris.scorePerLine.Length)]; //add the defined scores per line to the score variable ( The math.min is only there for absolute certainty even though you can't clear more than 4 at once)
+                _score += Tetris.ScorePerLine[Math.Min(fullLines - 1, Tetris.ScorePerLine.Length)]; //add the defined scores per line to the score variable ( The math.min is only there for absolute certainty even though you can't clear more than 4 at once)
                 _clearedLines += fullLines;
-                Tetris.tetris.SendGarbageLines((int)Math.Floor(fullLines/2f),this);
+                Tetris.tetris.SendGarbageLines((int) Math.Floor(fullLines / 2f), this); // send garbage lines to the other player 0 for 1 line, 1 for 2 and 3 lines, 2 for 4 lines
             }
         }
 
@@ -231,7 +235,7 @@ namespace Tetris2
 
             PlaceCurrentTetronimo();
 
-            if (!_currentTetronimo.Fits())
+            if (!_currentTetronimo.Fits()) // if it doesn't fit anymore the player has lost
             {
                 lost = true;
             }
@@ -269,8 +273,8 @@ namespace Tetris2
         /// </summary>
         private void PlaceCurrentTetronimo()
         {
-            Point spawnPos = new Point((int) (_grid.GetLength(0) - _currentTetronimo.Size.X) / 2, 0);
-            for (int y = 0; y < _currentTetronimo.shape.GetLength(1); y++)
+            Point spawnPos = new Point((int) (_grid.GetLength(0) - _currentTetronimo.Size.X) / 2, 0); // center the current tetronimo on the x axis
+            for (int y = 0; y < _currentTetronimo.shape.GetLength(1); y++) //look for the first row with a piece in it that is the top
             {
                 bool hasBlockInRow = false;
                 for (int x = 0; x < _currentTetronimo.shape.GetLength(0); x++)
@@ -282,14 +286,14 @@ namespace Tetris2
                     }
                 }
 
-                if (hasBlockInRow)
+                if (hasBlockInRow) // if true, this is the top
                 {
-                    spawnPos -= new Point(0, y);
+                    spawnPos -= new Point(0, y); // move the tetronimo in such a way that the top is at the top position of the grid
                     break;
                 }
             }
 
-            _currentTetronimo.position = spawnPos;
+            _currentTetronimo.position = spawnPos; // set the position
         }
 
         /// <summary>
@@ -304,28 +308,31 @@ namespace Tetris2
             {
                 for (int y = 0; y < shape.GetLength(1); y++)
                 {
-                    if (shape[x, y] == false) continue;
-                    Point blockPosition = new Point(x, y) + position;
-                    if (blockPosition.X < 0 || blockPosition.Y < 0 || blockPosition.X >= _grid.GetLength(0) || blockPosition.Y >= _grid.GetLength(1)) return false;
-                    if (_grid[blockPosition.X, blockPosition.Y] != 0) return false;
+                    if (shape[x, y] == false) continue; // don't need to check empty spots
+                    Point blockPosition = new Point(x, y) + position; //get local to grid position
+                    if (blockPosition.X < 0 || blockPosition.Y < 0 || blockPosition.X >= _grid.GetLength(0) || blockPosition.Y >= _grid.GetLength(1)) return false; //check if it is even within the grid
+                    if (_grid[blockPosition.X, blockPosition.Y] != 0) return false; // check if that position in the grid is empty
                 }
             }
 
             return true;
         }
 
+        /// <summary>
+        /// Fills the bottom with garbage lines
+        /// </summary>
         public void CreateGarbageLines()
         {
             while (garbageLines > 0)
             {
-                int emptySpot = _random.Next(0, _grid.GetLength(0));
+                int emptySpot = _random.Next(0, _grid.GetLength(0)); // chose a spot to be empty on the x axis
                 for (int y = 0; y < _grid.GetLength(1); y++)
                 {
                     for (int x = 0; x < _grid.GetLength(0); x++)
                     {
                         if (y == _grid.GetLength(1) - 1)
                         {
-                            if(x == emptySpot)_grid[x,y] = 0; //Leave the empty spot empty
+                            if (x == emptySpot) _grid[x, y] = 0; //Leave the empty spot empty
                             else _grid[x, y] = colors.Length - 1; // fill the rest with gray tiles (the last color)
                         }
                         else
@@ -334,8 +341,9 @@ namespace Tetris2
                         }
                     }
                 }
+
                 garbageLines--;
-            }   
+            }
         }
 
         /// <summary>
@@ -353,10 +361,10 @@ namespace Tetris2
             }
 
             _hasHeld = false;
-            Tetris.placeSFX.Play();
-            ClearLines();
-            CreateGarbageLines();
-            SpawnNewTetronimo();
+            Tetris.placeSfx.Play(); //play the sfx
+            ClearLines(); // check for lines to clear
+            CreateGarbageLines(); // create garbage lines
+            SpawnNewTetronimo(); // spawn a new piece
         }
     }
 }

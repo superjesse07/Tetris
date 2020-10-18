@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 
 namespace Tetris2
@@ -12,7 +10,7 @@ namespace Tetris2
         public static Vector2 BlockSize => new Vector2(block.Width, block.Height); //Block Size dependent on the texture
         public Point position; //position of the tetronimo. Upper left corner
         private Vector2 Vector2Position => new Vector2(position.X,position.Y); //A vector2 of the position
-        public bool[,] shape { get; protected set; } //type of tetronimo
+        public bool[,] shape { get; protected set; } //shape of the tetronimo (defined in the subclasses)
         public Vector2 Size => new Vector2(shape.GetLength(0), shape.GetLength(1)); //GridSize of the tetronimo x and y
         public int color; //color(colour) of the tetronimo piece
         private TetrisGrid parentGrid; //Copy of the current grid 
@@ -58,12 +56,21 @@ namespace Tetris2
             }
         }
 
-        public bool Fits() // return true if the shape fits in the position
+        /// <summary>
+        /// Checks if the shape fits in the grid
+        /// </summary>
+        /// <returns>true if it fits</returns>
+        public bool Fits()
         {
             return parentGrid.ShapeFitsInPos(shape, position);
         }
 
-        public bool Move(Point dir) //return true if the move can be done
+        /// <summary>
+        /// Moves the piece
+        /// </summary>
+        /// <param name="dir">the direction for the piece to move in</param>
+        /// <returns>returns true if the movement succeeded</returns>
+        public bool Move(Point dir) 
         {
             bool canMove = parentGrid.ShapeFitsInPos(shape, position + dir);
             if (canMove)
