@@ -8,12 +8,12 @@ namespace Tetris2
 {
     public abstract class Tetronimo
     {
-        public static Texture2D block;
-        public static Vector2 BlockSize => new Vector2(block.Width, block.Height);
-        public Point position;
-        public Vector2 Vector2Position => new Vector2(position.X,position.Y);
-        public bool[,] shape { get; protected set; }
-        public Vector2 Size => new Vector2(shape.GetLength(0), shape.GetLength(1));
+        public static Texture2D block; //block texture
+        public static Vector2 BlockSize => new Vector2(block.Width, block.Height); //Block Size dependent on the texture
+        public Point position; //position of the tetronimo. Upper left corner
+        public Vector2 Vector2Position => new Vector2(position.X,position.Y); //A vector2 of the position
+        public bool[,] shape { get; protected set; } //type of tetronimo
+        public Vector2 Size => new Vector2(shape.GetLength(0), shape.GetLength(1)); //
         public int color;
         private TetrisGrid parentGrid;
 
