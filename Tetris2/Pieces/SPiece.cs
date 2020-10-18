@@ -4,7 +4,7 @@ namespace Tetris2.Pieces
 {
     public class SPiece: Tetronimo
     {
-        public SPiece(Point position, TetrisGrid parentGrid): base(position,parentGrid)
+        public SPiece(TetrisGrid parentGrid): base(parentGrid)
         {
             color = 3;
             shape = new[,]
